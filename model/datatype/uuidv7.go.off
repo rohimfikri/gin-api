@@ -1,0 +1,80 @@
+package datatype
+
+import (
+	"database/sql/driver"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"net/url"
+
+	"github.com/google/uuid"
+	"gorm.io/gorm"
+	"gorm.io/gorm/schema"
+)
+
+type UuidV7 uuid.UUID
+
+func (u UuidV7) Value() (driver.Value, error) {
+	return u.String, nil
+}
+
+func (u *UuidV7) Scan(value interface{}) error {
+	if value == nil {
+		*j = JSON("null")
+		return nil
+	}
+
+	var us string
+
+	switch v := value.(type) {
+	case []byte:
+		us = string(v)
+	case string:
+		us = v
+	default:
+		return errors.New(fmt.Sprint("Failed to parse URL:", value))
+	}
+	uu, err := url.Parse(us)
+	if err != nil {
+		return err
+	}
+	*u = URL(*uu)
+	return nil
+}
+
+func (UuidV7) GormDataType() string {
+	return "uuidv7"
+}
+
+func (UuidV7) GormDBDataType(db *gorm.DB, field *schema.Field) string {
+	switch db.Dialector.Name() {
+	case "sqlite":
+		return "TEXT"
+	case "mysql":
+		return "VARCHAR"
+	case "postgres":
+		return "VARCHAR"
+	}
+	return ""
+}
+
+func (u *UuidV7) String() string {
+	return u.String()
+}
+
+func (u UuidV7) MarshalJSON() ([]byte, error) {
+	return json.Marshal(u.String())
+}
+
+func (u *UuidV7) UnmarshalJSON(data []byte) error {
+	// ignore null
+	if string(data) == "null" {
+		return nil
+	}
+	_, err := uuid.Parse(u)
+	if err != nil {
+		return err
+	}
+	*u = uuid.NewV7()(*uu)
+	return nil
+}

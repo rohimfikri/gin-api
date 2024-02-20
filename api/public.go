@@ -13,6 +13,7 @@ func SetupPublicRouter(ENV *config.Config, r *gin.Engine) {
 
 	api_public.SetupPingApi(r)
 	api_public.SetupEnvApi(ENV, r)
+	api_public.SetupGeneratorApi(ENV, r)
 
 	fmt.Println("'public' router has been CONFIGURED!")
 }

@@ -9,6 +9,10 @@ import (
 func LoadConfig(ENV **Config) {
 	fmt.Println("Loading app configuration...")
 
+	// err := godotenv.Load()
+	// if err != nil {
+	// 	panic("Error loading .env file")
+	// }
 	SetupViper(ENV)
 
 	fmt.Println("App configuration has been LOADED!")

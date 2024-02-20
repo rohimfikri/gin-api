@@ -3,8 +3,6 @@ package main
 import (
 	"fmt"
 	"gin-api/core"
-
-	"github.com/gin-gonic/gin"
 )
 
 // var db = make(map[string]string)
@@ -75,10 +73,8 @@ import (
 // }
 
 func main() {
-	ginRouter := gin.Default()
-
-	core.SetupApp(ginRouter)
+	ginEngine := core.SetupApp()
 	defer core.FlushApp()
 
-	ginRouter.Run(fmt.Sprintf(":%v", core.ENV.PORT))
+	ginEngine.Run(fmt.Sprintf(":%v", core.ENV.PORT))
 }
