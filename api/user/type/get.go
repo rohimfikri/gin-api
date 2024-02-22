@@ -6,3 +6,7 @@ type GetActiveUsersRequest struct {
 	FirstNameLike string `json:"firstname_like" form:"firstname_like" validate:"omitempty,alpha,min=3,max=50"`
 	LastNameLike  string `json:"lastname_like" form:"lastname_like" validate:"omitempty,alpha,min=3,max=50"`
 }
+
+type GetUserByIdRequest struct {
+	ID string `uri:"id" binding:"required" validate:"required,max=30"`
+}
