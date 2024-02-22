@@ -1,15 +1,15 @@
 package api_auth
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog/log"
 )
 
 func SetupProfileApi(r *gin.RouterGroup) {
-	fmt.Println("Add GET::/me router")
-	// Ping test
+	logger := &log.Logger
+	logger.Info().Str("logtype", "Router").Msg("Add GET::/me router")
 	r.GET("/me", func(c *gin.Context) {
 		c.String(http.StatusOK, "My Profile")
 	})

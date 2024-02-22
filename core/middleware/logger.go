@@ -1,4 +1,4 @@
-package middleware
+package core_middleware
 
 import (
 	"os"

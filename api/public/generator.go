@@ -1,43 +1,20 @@
 package api_public
 
 import (
-	"fmt"
-	"gin-api/core/config"
-	"net/http"
+	public_controller "gin-api/api/public/controller"
+	core_type "gin-api/core/type"
 
 	"github.com/gin-gonic/gin"
-	"github.com/lithammer/shortuuid"
-	"golang.org/x/crypto/bcrypt"
+	"github.com/rs/zerolog/log"
 )
 
-func SetupGeneratorApi(ENV *config.Config, r *gin.Engine) {
+func SetupGeneratorApi(ENV *core_type.Config, r *gin.Engine) {
+	logger := &log.Logger
 	g_r := r.Group("/generate")
 
-	fmt.Println("Add GET::/generate/short-uuid router")
-	g_r.GET("/short-uuid", ShortUuid)
+	logger.Info().Str("logtype", "Router").Msg("Add GET::/generate/short-uuid router")
+	g_r.GET("/short-uuid", public_controller.ShortUUID())
 
-	fmt.Println("Add POST::/generate/bcrypt router")
-	g_r.POST("/bcrypt", Bcrypt)
-}
-
-func ShortUuid(c *gin.Context) {
-	u := shortuuid.New()
-	c.String(http.StatusOK, u)
-}
-
-func Bcrypt(c *gin.Context) {
-	objReq := GenerateBcryptRequest{}
-	if err := c.ShouldBind(&objReq); err == nil {
-		if hash, err := bcrypt.GenerateFromPassword([]byte(objReq.Password), bcrypt.DefaultCost); err == nil {
-			ret := map[string]interface{}{
-				"pass": objReq.Password,
-				"hash": string(hash),
-			}
-			c.JSON(http.StatusOK, ret)
-		} else {
-			c.String(http.StatusBadRequest, err.Error())
-		}
-	} else {
-		c.String(http.StatusBadRequest, err.Error())
-	}
+	logger.Info().Str("logtype", "Router").Msg("Add POST::/generate/bcrypt router")
+	g_r.POST("/bcrypt", public_controller.Bcrypt())
 }

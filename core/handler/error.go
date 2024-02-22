@@ -1,11 +1,26 @@
-package handler
+package core_handler
 
 import (
-	"gin-api/helper"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
+
+type NotFoundError struct {
+	Message string
+}
+
+type BadRequestError struct {
+	Message string
+}
+
+type InternalServerError struct {
+	Message string
+}
+
+type UnauthorizedError struct {
+	Message string
+}
 
 func (e *NotFoundError) Error() string {
 	return e.Message
@@ -39,10 +54,8 @@ func HandleError(c *gin.Context, err error) {
 		statusCode = http.StatusNotImplemented
 	}
 
-	response := helper.ResponseParams{
+	ResponseParams{
 		StatusCode: statusCode,
 		Message:    err.Error(),
-	}.Response()
-
-	c.JSON(statusCode, response)
+	}.HandleResponse(c)
 }

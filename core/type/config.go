@@ -1,4 +1,4 @@
-package config
+package core_type
 
 type Config struct {
 	GIN_MODE         string

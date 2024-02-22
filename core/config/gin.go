@@ -1,14 +1,14 @@
-package config
+package core_config
 
 import (
 	"fmt"
-	"gin-api/middleware"
+	core_middleware "gin-api/core/middleware"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 )
 
-func SetupGin(ENV *Config) *gin.Engine {
+func SetupGin() *gin.Engine {
 
 	fmt.Printf("Setup Gin on '%v' mode...\n", ENV.GIN_MODE)
 
@@ -19,7 +19,7 @@ func SetupGin(ENV *Config) *gin.Engine {
 	}
 
 	engine := gin.New()
-	engine.Use(middleware.ZeroJSONLogger(&ENV.GIN_MODE, &ENV.LOG_LEVEL, &ENV.LOG_PRETTY))
+	engine.Use(core_middleware.ZeroJSONLogger(&ENV.GIN_MODE, &ENV.LOG_LEVEL, &ENV.LOG_PRETTY))
 	engine.Use(gin.Recovery())
 
 	fmt.Printf("Gin '%v' mode setup has been DONE!\n", ENV.GIN_MODE)

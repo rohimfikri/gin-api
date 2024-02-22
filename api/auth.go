@@ -1,18 +1,19 @@
 package api
 
 import (
-	"fmt"
 	api_auth "gin-api/api/auth"
-	"gin-api/core/config"
+	core_type "gin-api/core/type"
 
 	"github.com/gin-gonic/gin"
+	"github.com/rs/zerolog/log"
 )
 
-func SetupAuthRouter(ENV *config.Config, r *gin.Engine) {
-	fmt.Println("Configuring 'auth' router...")
+func SetupAuthRouter(ENV *core_type.Config, r *gin.Engine) {
+	logger := &log.Logger
+	logger.Info().Str("logtype", "SetupRouter").Msg("Configuring 'auth' router...")
 
 	auth_r := r.Group("/auth")
 	api_auth.SetupProfileApi(auth_r)
 
-	fmt.Println("'auth' router has been CONFIGURED!")
+	logger.Info().Str("logtype", "SetupRouter").Msg("'auth' router has been CONFIGURED!")
 }

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"gin-api/core"
+	core_config "gin-api/core/config"
 )
 
 // var db = make(map[string]string)
@@ -76,5 +77,5 @@ func main() {
 	ginEngine := core.SetupApp()
 	defer core.FlushApp()
 
-	ginEngine.Run(fmt.Sprintf(":%v", core.ENV.PORT))
+	ginEngine.Run(fmt.Sprintf(":%v", core_config.ENV.PORT))
 }

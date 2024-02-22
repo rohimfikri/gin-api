@@ -1,4 +1,4 @@
-package config
+package core_config
 
 import (
 	"fmt"
@@ -6,19 +6,19 @@ import (
 	"github.com/spf13/viper"
 )
 
-func LoadConfig(ENV **Config) {
+func LoadConfig() {
 	fmt.Println("Loading app configuration...")
 
 	// err := godotenv.Load()
 	// if err != nil {
 	// 	panic("Error loading .env file")
 	// }
-	SetupViper(ENV)
+	SetupViper()
 
 	fmt.Println("App configuration has been LOADED!")
 }
 
-func SetupViper(ENV **Config) {
+func SetupViper() {
 	fmt.Println("Setup Viper...")
 
 	viper.SetConfigName(".env") // name of config file (without extension)

@@ -1,24 +1,21 @@
 package core
 
 import (
-	"gin-api/core/config"
+	core_config "gin-api/core/config"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
-var ENV *config.Config
-var DB_SYS *gorm.DB
-
 func SetupApp() *gin.Engine {
-	config.LoadConfig(&ENV)
-	ginEngine := config.SetupGin(ENV)
-	config.ConnectDBSys(ENV, DB_SYS)
-	SetupRouter(ENV, ginEngine)
+	core_config.LoadConfig()
+	ginEngine := core_config.SetupGin()
+	core_config.ConfigValidator()
+	core_config.ConnectDBSys()
+	SetupRouter(core_config.ENV, ginEngine)
 
 	return ginEngine
 }
 
 func FlushApp() {
-	config.DisconnectDBSys(ENV, DB_SYS)
+	core_config.DisconnectDBSys()
 }
