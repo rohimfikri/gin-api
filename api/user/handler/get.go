@@ -43,3 +43,26 @@ func GetActiveUsers(param *user_type.GetActiveUsersRequest) (*[]map[string]inter
 
 	return &users, nil
 }
+
+func GetUserByID(param *user_type.GetUserByIDRequest) (*core_model.User, error) {
+	logger := &log.Logger
+
+	// Validate Param
+	var validate = validator.New()
+	validateErr := validate.Struct(param)
+	if validateErr != nil {
+		logger.Info().Str("logtype", "GetUserByID").Err(validateErr)
+		return nil, fmt.Errorf("%v", validateErr.Error())
+	}
+
+	// Prepare Data
+	u := core_model.User{}
+
+	if err := u.FindByID(core_config.DB_SYS, &param.ID); err != nil || u.ID == "" {
+		msg := "User Not Found"
+		logger.Info().Str("logtype", "GetUserByID").Msg(msg)
+		return nil, fmt.Errorf("%v", msg)
+	}
+
+	return &u, nil
+}

@@ -2,16 +2,18 @@ package core_helper
 
 import (
 	"fmt"
-	core_config "gin-api/core/config"
 	core_model "gin-api/core/model"
 	core_type "gin-api/core/type"
+	"slices"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/lithammer/shortuuid"
 	"github.com/rs/zerolog/log"
 )
 
-func GenerateToken(user *core_model.User) (string, error) {
+func GenerateToken(user *core_model.User, secretKey *string, issuer *string, expiredHour *uint8) (string, string, error) {
+	uuid := shortuuid.New()
 	claims := core_type.JWTUserClaims{
 		Username:  user.Username,
 		Email:     user.Email,
@@ -19,38 +21,75 @@ func GenerateToken(user *core_model.User) (string, error) {
 		LastName:  *user.LastName,
 		RegisteredClaims: jwt.RegisteredClaims{
 			// A usual scenario is to set the expiration time relative to the current time
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Duration(core_config.ENV.JWT_EXPIRED_HOUR) * time.Hour)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Duration(*expiredHour) * time.Hour)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			NotBefore: jwt.NewNumericDate(time.Now()),
-			Issuer:    core_config.ENV.JWT_ISSUER,
+			Issuer:    *issuer,
 			Subject:   user.Username,
-			// ID:        user.ID,
+			ID:        uuid,
 			// Audience:  []string{"somebody_else"},
 		},
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(core_config.ENV.JWT_SECRET_KEY)
+	refreshClaims := core_type.JWTUserClaims{
+		RegisteredClaims: jwt.RegisteredClaims{
+			// A usual scenario is to set the expiration time relative to the current time
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Duration(*expiredHour*2) * time.Hour)),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			NotBefore: jwt.NewNumericDate(time.Now()),
+			Issuer:    *issuer,
+			Subject:   user.Username,
+			ID:        uuid,
+			// Audience:  []string{"somebody_else"},
+		},
+	}
+
+	var token string
+	var refreshToken string
+	var err error
+	token, err = jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString(*secretKey)
+	if err != nil {
+		logger := &log.Logger
+		logger.Fatal().Err(err).Str("logtype", "GenerateToken")
+	} else {
+		refreshToken, err = jwt.NewWithClaims(jwt.SigningMethodHS256, refreshClaims).SignedString(*secretKey)
+	}
+
+	return token, refreshToken, err
 }
 
-func ParseToken(tokenString *string) (*core_type.JWTUserClaims, error) {
+func ValidateToken(tokenString *string, secretKey *string) (*core_type.JWTUserClaims, error) {
 	token, err := jwt.ParseWithClaims(*tokenString, &core_type.JWTUserClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 
-		return []byte(core_config.ENV.JWT_SECRET_KEY), nil
+		return []byte(*secretKey), nil
 	})
 	logger := &log.Logger
 	if err != nil {
-		logger.Fatal().Err(err)
+		logger.Fatal().Err(err).Str("logtype", "ValidateToken")
 		return nil, err
 	} else if claims, ok := token.Claims.(*core_type.JWTUserClaims); ok {
-		logger.Info().Str("username", claims.Username).Str("issuer", claims.RegisteredClaims.Issuer)
-		return claims, nil
+		if claims.ExpiresAt.Unix() < time.Now().Local().Unix() {
+			logger.Info().Str("logtype", "ValidateToken").Msg("token is expired")
+			return nil, fmt.Errorf("token is expired")
+		} else {
+			return claims, nil
+		}
 	} else {
-		logger.Fatal().Msg("unknown claims type, cannot proceed")
+		logger.Fatal().Str("logtype", "ValidateToken").Msg("unknown claims type, cannot proceed")
 		return nil, fmt.Errorf("unknown claims type, cannot proceed")
 	}
 
+}
+
+func CheckPublicRouter(path *string, publicRoute *[]string) bool {
+	ret := false
+
+	if slices.Contains(*publicRoute, *path) {
+		ret = true
+	}
+
+	return ret
 }

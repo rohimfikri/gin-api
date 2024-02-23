@@ -8,7 +8,7 @@ import (
 
 func SetupApp() *gin.Engine {
 	core_config.LoadConfig()
-	ginEngine := core_config.SetupGin()
+	ginEngine := core_config.SetupGin(&PUBLIC_ROUTER)
 	core_config.ConfigValidator()
 	core_config.ConnectDBSys()
 	SetupRouter(core_config.ENV, ginEngine)

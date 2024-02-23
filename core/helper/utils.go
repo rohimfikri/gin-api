@@ -17,7 +17,7 @@ func ConvertToDataResponse(data *[]map[string]interface{}, exclude *[]string) (*
 
 		resp.Schema = make(map[string]int, len(f))
 		idx := 0
-		for k, _ := range f {
+		for k := range f {
 			if len(*exclude) > 0 && !slices.Contains(*exclude, k) {
 				resp.Schema[k] = idx
 				idx++

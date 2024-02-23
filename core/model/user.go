@@ -13,15 +13,15 @@ import (
 type User struct {
 	// gorm.Model
 	// ID        uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4()"`
-	ID        string    `gorm:"primaryKey;size:30"`
-	Username  string    `gorm:"unique;size:20;not null"`
-	Password  string    `gorm:"size:100;not null"`
-	Email     string    `gorm:"size:100;unique;not null"`
-	FirstName string    `gorm:"size:50;not null"`
-	LastName  *string   `gorm:"size:50"`
-	Status    uint      `gorm:"default:1;precision:1;size:1;not null"`
-	CreatedAt time.Time `gorm:"not null;autoCreateTime"`
-	UpdatedAt time.Time `gorm:"not null;autoUpdateTime"`
+	ID        string    `gorm:"primaryKey;size:30" structs:"id"`
+	Username  string    `gorm:"unique;size:20;not null" structs:"username"`
+	Password  string    `gorm:"size:100;not null" structs:"password,omitempty"`
+	Email     string    `gorm:"size:100;unique;not null" structs:"email"`
+	FirstName string    `gorm:"size:50;not null" structs:"first_name"`
+	LastName  *string   `gorm:"size:50" structs:"last_name"`
+	Status    uint      `gorm:"default:1;precision:1;size:1;not null" structs:"status"`
+	CreatedAt time.Time `gorm:"not null;autoCreateTime" structs:"created_at"`
+	UpdatedAt time.Time `gorm:"not null;autoUpdateTime" structs:"updated_at,omitempty"`
 }
 
 func (u *User) SaveUser(DB_SYS *gorm.DB) (*User, error) {
@@ -52,6 +52,15 @@ func (u *User) BeforeSave(tx *gorm.DB) error {
 	u.UpdatedAt = time.Now()
 	u.Status = 1
 
+	return nil
+}
+
+func (u *User) FindByID(DB_SYS *gorm.DB, id *string) error {
+	tx := DB_SYS.Session(&gorm.Session{PrepareStmt: true})
+	err := tx.Table("m_user").Where("id = ?", *id).Find(&u).Error
+	if err != nil {
+		return err
+	}
 	return nil
 }
 

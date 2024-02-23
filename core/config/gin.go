@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetupGin() *gin.Engine {
+func SetupGin(PUBLIC_ROUTER *[]string) *gin.Engine {
 
 	fmt.Printf("Setup Gin on '%v' mode...\n", ENV.GIN_MODE)
 
@@ -20,6 +20,7 @@ func SetupGin() *gin.Engine {
 
 	engine := gin.New()
 	engine.Use(core_middleware.ZeroJSONLogger(&ENV.GIN_MODE, &ENV.LOG_LEVEL, &ENV.LOG_PRETTY))
+	engine.Use(core_middleware.JWTAuthenticate(&ENV.JWT_SECRET_KEY, PUBLIC_ROUTER))
 	engine.Use(gin.Recovery())
 
 	fmt.Printf("Gin '%v' mode setup has been DONE!\n", ENV.GIN_MODE)

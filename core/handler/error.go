@@ -58,4 +58,5 @@ func HandleError(c *gin.Context, err error) {
 		StatusCode: statusCode,
 		Message:    err.Error(),
 	}.HandleResponse(c)
+	c.Abort()
 }

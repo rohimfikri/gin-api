@@ -9,13 +9,15 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+var PUBLIC_ROUTER []string
+
 func SetupRouter(ENV *core_type.Config, r *gin.Engine) {
 	logger := &log.Logger
 	logger.Info().Str("logtype", "SetupApp").Msg("Configuring app router...")
 
 	r.ForwardedByClientIP = true
 	r.SetTrustedProxies(strings.Split(ENV.TRUSTED_PROXIES, ","))
-	api.SetupPublicRouter(ENV, r)
+	api.SetupPublicRouter(&PUBLIC_ROUTER, ENV, r)
 	api.SetupAuthRouter(ENV, r)
 	api.SetupUserRouter(ENV, r)
 
